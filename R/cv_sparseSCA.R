@@ -23,20 +23,17 @@
 #'
 #'@return
 #'\item{PRESS}{A matrix of predicted residual sum of squares (PRESS) for the sequences of Lasso and Group Lasso tuning parameters.}
+#'\item{SE_MSE}{A matrix of standard errors for \code{PRESS}.}
 #'\item{Press1SE}{The lowest PRESS + 1SE.}
-#'\item{plot}{A plot of PRESS +/- 1 standard error against Lasso and Group Lasso tuning parameters, with the vertical dotted black line indicating the lowest
-#'PRESS+1SE. Note that on the x axis (abscissa) are Lasso tuning parameter values. The Group Lasso tuning parameter values are shown on the top of the graph, and the values shown are index numbers:
-#'G1, for example, indicates the first value in the \code{GLassoSequence}.
-#'In case both the Lasso sequence and the Group Lasso sequence contain more than 2 elements, there will be an extra plot, which is 
-#'the number of non-zero component loadings against Lasso and Group Lasso tuning parameters. In this case \code{plot} is a list of two plots.
-#'To find their corresponding values, please make use of \code{Lasso_values} and \code{Glasso_values}. The vertical red dashed lines indicate a proper region for Lasso tuning parameters
-#'given a certain Group Lasso tuning parameter. When there is only one vertical red dashed line, a proper region for Lasso tuning parameters is not available: the red dashed line indicates 
-#'the Lasso tuning parameter leading to the PRESS that is closest to the smallest PRESS+1SE.} 
+#'\item{VarSelected}{A matrix of number of variables selected for the sequences of Lasso and Group Lasso tuning parameters.}
 #'\item{Lasso_values}{The sequence of Lasso tuning parameters used for cross-validation. Users may also consult \code{Lambdaregion} (explained below).}
 #'\item{Glasso_values}{The sequence of Group Lasso tuning parameters used for cross-validation. For example, suppose from the plot we found that the index number
 #'for Group Lasso is \code{6}, its corresponding Group Lasso tuning parameter is \code{Glasso_values[6]}.}
 #'\item{Lambdaregion}{A region of proper tuning parameter values for Lasso, given a certain value for Group Lasso. This means that, for example, if 5 Group Lasso tuning parameter values have been considered, \code{Lambdaregion} is a 5 by 2 matrix.}
 #'\item{RecommendedLambda}{A pair (or sometimes a few pairs) of Lasso and Group Lasso tuning parameters that lead to a model with PRESS closest to the lowest PRESS + 1SE.}
+#'\item{P_hat}{Estimated component loading matrix, given the recommended tuning parameters.}
+#'\item{T_hat}{Estimated component score matrix, given the recommended tuning parameters.}
+#'\item{plotlog}{An index number for function \code{plot}, which is not useful for users.}
 #'@examples
 #'\dontrun{
 #'DATA1 <- matrix(rnorm(50), nrow=5)
@@ -278,41 +275,6 @@ cv_sparseSCA <- function(DATA, Jk, R, MaxIter, NRSTARTS, LassoSequence, GLassoSe
     l1matrix <- t(cbind(lasso1, matrix(NA, length(lasso1), length(LassoSequence)-1)))
     l2matrix <- t(cbind(lasso2, matrix(NA, length(lasso2), length(LassoSequence)-1)))
   
-    l1s <- NA #It seems that a variable must be defined first, otherwise R CMD check generates a Note
-    l2s <- NA
-    
-    if(plotlog == 1){
-      
-      df <- data.frame(GLassoI = Glasso_index0, LassoI = log(lasso_index0), Press = vec_PRESS, Upper = upper, Lower = lower, l1s = c(log(l1matrix)), l2s = c(log(l2matrix)))
-      df2 <- data.frame(GLassoI = Glasso_index0, LassoI = log(lasso_index0),  Var = vec_varsel, l1s = c(log(l1matrix)), l2s = c(log(l2matrix)))
-      xtag <- "log(Lasso)"
-    } else{
-      df <- data.frame(GLassoI = Glasso_index0, LassoI = lasso_index0, Press = vec_PRESS, Upper = upper, Lower = lower, l1s = c(l1matrix), l2s = c(l2matrix))
-      df2 <- data.frame(GLassoI = Glasso_index0, LassoI = lasso_index0,  Var = vec_varsel, l1s = c(l1matrix), l2s = c(l2matrix))
-      xtag <- "Lasso"
-    }
-    
-    
-    p1 <- ggplot2::ggplot(df, ggplot2::aes_string(x='LassoI',y='Press',group='GLassoI')) +
-         ggplot2::facet_grid(.~GLassoI)+
-         ggplot2::geom_errorbar(ggplot2::aes_string(ymin='Lower',ymax='Upper', group='GLassoI'), width=.1) +
-         ggplot2::geom_point(ggplot2::aes_string(x='LassoI',y='Press',group='GLassoI')) +
-         ggplot2::geom_hline(yintercept = upper[which(vec_PRESS == min(vec_PRESS))], linetype = 3) +
-         ggplot2::geom_vline(data = subset(df, !is.na(l1s)), ggplot2::aes_string(xintercept = 'l1s'), linetype = "longdash", col = "red" ) +
-         ggplot2::geom_vline(data = subset(df, !is.na(l2s)), ggplot2::aes_string(xintercept = 'l2s'), linetype = "longdash", col = "red" )      
-    
-    p1 <- p1 + ggplot2::labs(x = xtag, y="Prediction Mean Squared Errors +/- 1SE")
-
-    p2 <- ggplot2::ggplot(df2, ggplot2::aes_string(x='LassoI',y='vec_varsel',group='GLassoI')) +
-          ggplot2::facet_grid(.~GLassoI)+
-          ggplot2::geom_point(ggplot2::aes_string(x='LassoI',y='vec_varsel',group='GLassoI')) +
-          ggplot2::geom_vline(data = subset(df, !is.na(l1s)), ggplot2::aes_string(xintercept = 'l1s'), linetype = "longdash", col = "red" ) +
-          ggplot2::geom_vline(data = subset(df, !is.na(l2s)), ggplot2::aes_string(xintercept = 'l2s'), linetype = "longdash", col = "red" )  
-    p2 <- p2 + ggplot2::labs(x = xtag, y="# of non-zero component loadings selected in P matrix")
-    
-    p <- list()
-    p[[1]] <- p1
-    p[[2]] <- p2
     
   } else if(length(LassoSequence)>=2 & length(GLassoSequence)==1){ #### CASE2: multiple lasso, one glasso
     
@@ -358,30 +320,7 @@ cv_sparseSCA <- function(DATA, Jk, R, MaxIter, NRSTARTS, LassoSequence, GLassoSe
       lambdaregion <- lasso1
     }
     
-    if (plotlog == 1){
-      df$LassoI = log(LassoSequence)
-      p <- ggplot2::ggplot(df, ggplot2::aes_string(x='LassoI',y='Press')) +
-        ggplot2::geom_errorbar(ggplot2::aes_string(ymin='Lower',ymax='Upper'), width=.1) +
-        ggplot2::geom_point(ggplot2::aes_string(x='LassoI',y='Press'))+
-        ggplot2::geom_hline(yintercept = upper[which(vec_PRESS == min(vec_PRESS))], linetype = 3)+
-        #ggplot2::scale_x_discrete(limits=lasso_index[1:length(LassoSequence)]) +
-        ggplot2::geom_vline(xintercept = log(lasso1), 
-          linetype = "longdash", col = "red") +
-        ggplot2::geom_vline(xintercept = log(lasso2), 
-          linetype = "longdash", col = "red") 
-      p <- p + ggplot2::labs(x = "Lasso (on log scale)", y="Prediction Mean Squared Errors +/- 1SE")
-    } else{
-      p <- ggplot2::ggplot(df, ggplot2::aes_string(x='LassoI',y='Press')) +
-        ggplot2::geom_errorbar(ggplot2::aes_string(ymin='Lower',ymax='Upper'), width=.1) +
-        ggplot2::geom_point(ggplot2::aes_string(x='LassoI',y='Press'))+
-        ggplot2::geom_hline(yintercept = upper[which(vec_PRESS == min(vec_PRESS))], linetype = 3)+
-        #ggplot2::scale_x_discrete(limits=lasso_index[1:length(LassoSequence)]) +
-        ggplot2::geom_vline(xintercept = lasso1, 
-          linetype = "longdash", col = "red") +
-        ggplot2::geom_vline(xintercept = lasso2, 
-          linetype = "longdash", col = "red") 
-      p <- p + ggplot2::labs(x = "Lasso", y="Prediction Mean Squared Errors +/- 1SE")
-    }
+    
   } else if(length(LassoSequence)==1 & length(GLassoSequence)>= 2){####CASE 3: Multiple glasso, one lasso
      
       df <- data.frame(GLassoI = GLassoSequence, Press = vec_PRESS, Upper = upper, Lower = lower)
@@ -427,31 +366,6 @@ cv_sparseSCA <- function(DATA, Jk, R, MaxIter, NRSTARTS, LassoSequence, GLassoSe
         lambdaregion <- glasso1
       }
     
-      if (plotlog == 1){
-        df$GLassoI = log(GLassoSequence)
-        p <- ggplot2::ggplot(df, ggplot2::aes_string(x='GLassoI',y='Press')) +
-        ggplot2::geom_errorbar(ggplot2::aes_string(ymin='Lower',ymax='Upper'), width=.1) +
-        ggplot2::geom_point(ggplot2::aes_string(x='GLassoI',y='Press'))+
-        ggplot2::geom_hline(yintercept = upper[which(vec_PRESS == min(vec_PRESS))], linetype = 3) +
-        #ggplot2::scale_x_discrete(limits=Glasso_index[1:length(GLassoSequence)])
-        ggplot2::geom_vline(xintercept = log(glasso1), 
-          linetype = "longdash", col = "red") +
-        ggplot2::geom_vline(xintercept = log(glasso2), 
-          linetype = "longdash", col = "red") 
-        p <- p + ggplot2::labs(x = "Group Lasso (on log scale)", y="Prediction Mean Squared Errors +/- 1SE")
-      } else{
-        p <- ggplot2::ggplot(df, ggplot2::aes_string(x='GLassoI',y='Press')) +
-          ggplot2::geom_errorbar(ggplot2::aes_string(ymin='Lower',ymax='Upper'), width=.1) +
-          ggplot2::geom_point(ggplot2::aes_string(x='GLassoI',y='Press'))+
-          ggplot2::geom_hline(yintercept = upper[which(vec_PRESS == min(vec_PRESS))], linetype = 3) +
-          #ggplot2::scale_x_discrete(limits=Glasso_index[1:length(GLassoSequence)])
-          ggplot2::geom_vline(xintercept = glasso1, 
-            linetype = "longdash", col = "red") +
-          ggplot2::geom_vline(xintercept = glasso2, 
-            linetype = "longdash", col = "red") 
-        p <- p + ggplot2::labs(x = "Group Lasso", y="Prediction Mean Squared Errors +/- 1SE")
-      }
-    
   }
 
   indexTuning <- which(abs(PRESS - lowestplus1SE)==min(abs(PRESS - lowestplus1SE)), arr.ind = T)
@@ -463,14 +377,39 @@ cv_sparseSCA <- function(DATA, Jk, R, MaxIter, NRSTARTS, LassoSequence, GLassoSe
   
   colnames(lambdaregion) <- c("lower bound", "upper bound")
   
+  ###### re-estimate the model with the recommended tuning parameters
+  if(dim(bestTunning)[1] == 1){
+    Re_est <- sparseSCA(DATA, Jk, R, LASSO = bestTunning[1, 1], GROUPLASSO = bestTunning[1, 2], MaxIter, NRSTARTS = 20, method)
+      p_hat <- Re_est$Pmatrix
+      t_hat <- Re_est$Tmatrix
+    
+  }else if(dim(bestTunning)[1] > 1){
+    # in this case more than one pair of tuning parameters are recommended (although it's highly unlikely)
+    p_hat <- list()
+    t_hat <- list()
+  
+      for(j in 1:dim(bestTunning)[1]){
+        Re_est <- sparseSCA(DATA, Jk, R, LASSO = bestTunning[j, 1], GROUPLASSO = bestTunning[j, 2], MaxIter, NRSTARTS = 20, method)
+        
+        p_hat[[j]] <- Re_est$Pmatrix
+        t_hat[[j]] <- Re_est$Tmatrix
+      }
+  }
+  
+  
   return_crossvali <- list()
   return_crossvali$PRESS <- PRESS
+  return_crossvali$SE_MSE <- se_MSE
   return_crossvali$Press1SE <- lowestplus1SE
-  return_crossvali$plot <- p
+  return_crossvali$VarSelected <- varselected
   return_crossvali$Lasso_values <- LassoSequence
   return_crossvali$Glasso_values <- GLassoSequence
   return_crossvali$Lambdaregion <- lambdaregion
   return_crossvali$RecommendedLambda <- bestTunning
+  return_crossvali$P_hat <- p_hat
+  return_crossvali$T_hat <- t_hat
+  return_crossvali$plotlog <- plotlog
+  attr(return_crossvali, "class") <- "CVsparseSCA"
   return(return_crossvali)
 
 }
