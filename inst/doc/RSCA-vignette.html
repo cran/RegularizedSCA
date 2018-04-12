@@ -12,7 +12,7 @@
 
 <meta name="author" content="Zhengguo Gu and Katrijn Van Deun" />
 
-<meta name="date" content="2017-10-17" />
+<meta name="date" content="2018-04-12" />
 
 <title>RegularizedSCA - an R package for regularized simultaneous component based data integration</title>
 
@@ -32,7 +32,7 @@
 
 <h1 class="title toc-ignore">RegularizedSCA - an R package for regularized simultaneous component based data integration</h1>
 <h4 class="author"><em>Zhengguo Gu and Katrijn Van Deun</em></h4>
-<h4 class="date"><em>2017-10-17</em></h4>
+<h4 class="date"><em>2018-04-12</em></h4>
 
 
 
@@ -56,12 +56,12 @@
 <h2>Identify common and distinctive components</h2>
 <div id="situation-1-no-prior-information-on-common-and-distinctive-components" class="section level3">
 <h3>Situation 1: No prior information on common and distinctive components</h3>
-<p>When no prior information is available, users may first try the function <code>VAF()</code> with various numbers of components. This function provides an overview of proportions of variance accounted for (VAF) for each component in each block. The idea is that we let <code>VAF()</code> do the analysis with an arbitrarily large number of components, say <code>R*</code>. Then the results of <code>VAF()</code> will show that only a smaller nuber is needed (i.e., <code>R &lt;&lt; R*</code>), and thus we have found <code>R</code>. For referenc e of <code>VAF()</code>, see:</p>
+<p>When no prior information is available, users may first try the function <code>VAF()</code> with various numbers of components. This function provides an overview of proportions of variance accounted for (VAF) for each component in each block. The idea is that we let <code>VAF()</code> do the analysis with an arbitrarily large number of components, say <code>R*</code>. Then the results of <code>VAF()</code> will show that only a smaller nuber is needed (i.e., <code>R &lt;&lt; R*</code>), and thus we have found <code>R</code>. <code>summary()</code> is avaiable for summarizing the results of <code>VAF()</code>. For referenc e of <code>VAF()</code>, see:</p>
 <ul>
 <li>Schouteden, M., Van Deun, K., Wilderjans, T. F., &amp; Van Mechelen, I. (2014). Performing DISCO-SCA to search for distinctive and common information in linked data. Behavior research methods, 46(2), 576-587.</li>
 <li>Schouteden, M., Van Deun, K., Pattyn, S., &amp; Van Mechelen, I. (2013). SCA with rotation to distinguish common and distinctive information in linked data. Behavior research methods, 45(3), 822-833.</li>
 </ul>
-<p><code>DISCOsca()</code> tries all possible combinations of common and distinctive patterns in <span class="math inline">\(\mathbf{P}\)</span> matrix. Note that this algorithm utilizes a specific rule to determine common and distinctive processes: To put it simply, for each component across the entire data block, the algorithm calculates the distance among the sum of squares of the loadings per block (weighted by total variance of the block) to determine whether it is a common/distinctive component. For technical details, see</p>
+<p><code>DISCOsca()</code> tries all possible combinations of common and distinctive patterns in <span class="math inline">\(\mathbf{P}\)</span> matrix. Note that this algorithm utilizes a specific rule to determine common and distinctive processes: To put it simply, for each component across the entire data block, the algorithm calculates the distance among the sum of squares of the loadings per block (weighted by total variance of the block) to determine whether it is a common/distinctive component. <code>summary()</code> is avaiable for summarizing the results of <code>DISCOsca()</code>. For technical details, see</p>
 <ul>
 <li>Schouteden, M., Van Deun, K., Wilderjans, T. F., &amp; Van Mechelen, I. (2014). Performing DISCO-SCA to search for distinctive and common information in linked data. Behavior research methods, 46(2), 576-587.</li>
 </ul>
@@ -70,16 +70,17 @@
 <li>Tenenhaus, A., &amp; Tenenhaus, M. (2011). Regularized generalized canonical correlation analysis. Psychometrika, 76(2), 257-284.</li>
 <li>Smilde, A.K., Mage, I., Naes, T., Hankemeier, T., Lips, M.A., Kiers, H.A., Acar, E., &amp; Bro, R. (2016). Common and distinct components in data fusion. arXiv preprint arXiv:1607.02328.</li>
 </ul>
-<p><code>sparseSCA()</code> is an algorithm for SCA models with a Lasso penalty and a Group Lasso penalty. The algorithm can identify common and distinctive components as long as the proper tuning parameters for Lasso and Group Lasso are chosen. Uers may use <code>cv_sparseSCA()</code> to find suitable values for the Lasso and Group Lasso tuning parameters. <code>maxLGlasso()</code> helps to identy the max values for the Lasso and Group Lasso tuning parameters (that is, the smallest value for Lasso and Group Lasso penalties that generate <span class="math inline">\(\mathbf{P}=\mathbf{0}\)</span>. Also noted that, <code>sparseSCA()</code> incorporates a multi-start procedure to deal with the local minima problem. For technical details, see</p>
+<p><code>sparseSCA()</code> is an algorithm for SCA models with a Lasso penalty and a Group Lasso penalty. The algorithm can identify common and distinctive components as long as the proper tuning parameters for Lasso and Group Lasso are chosen. Uers may use <code>cv_sparseSCA()</code> to find suitable values for the Lasso and Group Lasso tuning parameters and use <code>plot()</code> to check the cross-validation plot. <code>maxLGlasso()</code> helps to identy the max values for the Lasso and Group Lasso tuning parameters (that is, the smallest value for Lasso and Group Lasso penalties that generate <span class="math inline">\(\mathbf{P}=\mathbf{0}\)</span>. Also noted that, <code>sparseSCA()</code> incorporates a multi-start procedure to deal with the local minima problem. <code>summary()</code> function is available for summarizing the results of <code>cv_sparseSCA()</code> and <code>sparseSCA()</code>. For technical details, see</p>
 <ul>
 <li>Friedman, J., Hastie, T., &amp; Tibshirani, R. (2010). A note on the group lasso and a sparse group lasso. arXiv preprint arXiv:1001.0736.</li>
 <li>Yuan, M., &amp; Lin, Y. (2006). Model selection and estimation in regression with grouped variables. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 68(1), 49-67.</li>
 </ul>
+<p>Finally, the shrinkage of the non-zero loadings of the estimated <span class="math inline">\(\mathbf{P}\)</span> matrix can be undone by <code>undoShrinkage()</code>, and its results can be summarized by <code>summary()</code>.</p>
 </div>
 <div id="situation-2-prior-information-on-common-and-distinctive-components-is-available" class="section level3">
 <h3>Situation 2: Prior information on common and distinctive components is available</h3>
 <p>This situation can happen, for example, when previous research has already provided some information on the common/distictive processes. In this case, researchers may want to specify a particular structure in the estimated <span class="math inline">\(\mathbf{P}\)</span> matrix; in particular, some elements in <span class="math inline">\(\mathbf{P}\)</span> are fixed to 0’s.</p>
-<p>To this end, users may want to use the function <code>structuredSCA()</code> or <code>cv_structuredSCA()</code>. <code>structuredSCA()</code> allows for flexibly estimating <span class="math inline">\(\mathbf{P}\)</span> given a pre-defined structure in <span class="math inline">\(\mathbf{P}\)</span>. The algorithm incorprates a Lasso penalty to achieve sparseness (and thus the Group Lasso is droped). To identify a suitable range of Lasso tuning parmaters, users are advised to try <code>cv_structuredSCA()</code>. For technical details, see</p>
+<p>To this end, users may want to use the function <code>structuredSCA()</code> or <code>cv_structuredSCA()</code>. <code>structuredSCA()</code> allows for flexibly estimating <span class="math inline">\(\mathbf{P}\)</span> given a pre-defined structure in <span class="math inline">\(\mathbf{P}\)</span>. The algorithm incorprates a Lasso penalty to achieve sparseness (and thus the Group Lasso is droped). To identify a suitable range of Lasso tuning parmaters, users are advised to try <code>cv_structuredSCA()</code>. <code>summary()</code> is avaiable for the summarizing the results of <code>cv_structuredSCA()</code> and <code>structuredSCA()</code>. Further <code>plot()</code> is available for showing the cross-validation plot for <code>cv_structuredSCA()</code>. For technical details, see</p>
 <ul>
 <li>Gu, Z., &amp; Van Deun, K. (2016). A variable selection method for simultaneous component based data integration. , 158, 187-199.</li>
 </ul>
