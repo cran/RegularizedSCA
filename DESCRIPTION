@@ -1,7 +1,7 @@
 Package: RegularizedSCA
 Type: Package
 Title: Regularized Simultaneous Component Based Data Integration
-Version: 0.5.3
+Version: 0.5.4
 Authors@R: c(person(given = "Zhengguo", family = "Gu", role = c("aut", "cre"), 
     email = "z.gu@uvt.nl"), 
     person(given = "Katrijn", family = "Van Deun", role = "aut"))
@@ -16,9 +16,9 @@ Imports: gtools, psych, RGCCA, ggplot2, stats, utils, graphics, mice,
         colorspace, lattice
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2018-04-12 10:02:12 UTC; Zhengguo
+Packaged: 2018-06-07 15:32:39 UTC; Zhengguo
 Author: Zhengguo Gu [aut, cre],
   Katrijn Van Deun [aut]
 Maintainer: Zhengguo Gu <z.gu@uvt.nl>
 Repository: CRAN
-Date/Publication: 2018-04-12 10:19:38 UTC
+Date/Publication: 2018-06-07 17:43:45 UTC
